@@ -1,22 +1,59 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http'
+import { map, catchError } from 'rxjs/operators'
+import { Observable } from 'rxjs';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GroceriesServiceService {
 
-  items = [];
+  items: any = [];
 
-  constructor() {
-    console.log('Hello Groceries')
+  dataChanged$: Observable<boolean>;
+
+  private dataChangeSubject: Subject<boolean>;
+
+  baseURL = "http://localhost:8080"
+
+ constructor(public http: HttpClient) {
+   console.log('Hello GroceriesService Provider Provider');
+
+   this.dataChangeSubject = new Subject<boolean>();
+   this.dataChanged$ = this.dataChangeSubject.asObservable();
+ }
+
+   getItems(): Observable<object> {
+     return this.http.get(this.baseURL + '/api/groceries').pipe(
+       map(this.extractData),
+       catchError(this.handleError)
+     );
    }
 
-   getItems() {
-    return this.items;
+   private extractData(res: Response) {
+     let body = res;
+     return body || {};
    }
 
-   removeItem(index) {
-     this.items.splice(index, 1);
+   private handleError(error: Response | any) {
+     let errMsg: string;
+     if (error instanceof Response) {
+       const err = error || '';
+       errMsg = `${error.status} - ${error.statusText || ''} ${err}`
+     } else {
+       errMsg = error.message ? error.message : error.toString();
+     }
+     console.error(errMsg);
+     return Observable.throw(errMsg)
+   }
+
+   removeItem(id) {
+     console.log("#### Remove Item - Id = ", id);
+     this.http.delete(this.baseURL + "/api/groceries/" +id).subscribe(res => {
+       this.items = res;
+       this.dataChangeSubject.next(true);
+     })
    }
 
    addItem(item) {
