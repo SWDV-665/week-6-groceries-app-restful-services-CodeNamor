@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http'
-import { map, catchError } from 'rxjs/operators'
-import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { map, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs';
 
 @Injectable({
@@ -24,7 +24,7 @@ export class GroceriesServiceService {
    this.dataChanged$ = this.dataChangeSubject.asObservable();
  }
 
-   getItems(): Observable<object> {
+   getItems(): Observable<object[]> {
      return this.http.get(this.baseURL + '/api/groceries').pipe(
        map(this.extractData),
        catchError(this.handleError)
