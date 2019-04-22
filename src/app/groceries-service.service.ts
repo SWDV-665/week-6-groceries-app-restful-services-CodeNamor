@@ -57,10 +57,17 @@ export class GroceriesServiceService {
    }
 
    addItem(item) {
-     this.items.push(item);
+     this.http.post(this.baseURL + "/api/groceries", item).subscribe(res => {
+       this.items = res;
+       this.dataChangeSubject.next(true);
+     });
    }
 
    editItem(item, index){
-     this.items[index] = item;
+    console.log("Editing item = ", item);
+    this.http.put(this.baseURL + "/api/groceries/" + item._id, item).subscribe( res => {
+      this.items = res;
+      this.dataChangeSubject.next(true);
+    });
    }
 }
